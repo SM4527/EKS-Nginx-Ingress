@@ -1,0 +1,39 @@
+services:
+
+  aws:
+    image: amazon/aws-cli
+    volumes:
+      - .:/code
+      - aws-credentials:/root/.aws
+    restart: "no"
+    working_dir: /code
+    entrypoint: aws
+    environment:
+      AWS_PROFILE: ${TF_VAR_AWS_PROFILE}
+
+  terraform:
+    image: mssms1/terraform:terraform_${TERRAFORM_VERSION}--awscli_${AWS_CLI_VERSION}--helm_${HELM_VERSION}
+    volumes:
+      - .:/code
+      - aws-credentials:/root/.aws
+    restart: "no"
+    working_dir: /code
+    environment:
+      TF_VAR_AWS_PROFILE: ${TF_VAR_AWS_PROFILE}
+
+  kubectl:
+    image: mssms1/kubectl:kubectl_${KUBECTL_VERSION}--awscli_${AWS_CLI_VERSION}--helm_${HELM_VERSION}
+    restart: "no"
+    working_dir: /code
+    volumes:
+      - .:/code
+      - aws-credentials:/root/.aws:ro
+    entrypoint: kubectl
+    environment:
+      AWS_PROFILE: ${TF_VAR_AWS_PROFILE}
+
+volumes:
+  aws-credentials:
+    name: aws-credentials
+    external: true
+  
